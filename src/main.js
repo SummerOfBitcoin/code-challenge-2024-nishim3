@@ -19,7 +19,7 @@ function run(){
         files.sort()
       
         // Take only the first 10 files
-        const selectedFiles = files.slice(0, 1150);
+        const selectedFiles = files.slice(0, 2050);
       
         // Loop through each file in the folder
         selectedFiles.forEach(file => {

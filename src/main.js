@@ -5,6 +5,17 @@ const path = require('path')
 const blockHeader = require('./blockHeader.js')
 const coinBase= require('./coinBase')
 const block = require('./block.js')
+const validate = require('./validate-tx.js')
+
+function readJSONFile(filePath) {
+  try {
+      const data = fs.readFileSync(filePath, 'utf8');
+      return JSON.parse(data);
+  } catch (error) {
+      console.error("Error reading JSON file:", error);
+      return null;
+  }
+}
 
 const folderPath ='mempool'
 function run(){
@@ -19,13 +30,20 @@ function run(){
         files.sort()
       
         // Take only the first 10 files
-        const selectedFiles = files.slice(0, 2000);
+        //const selectedFiles = files.slice(0, 2000);
       
         // Loop through each file in the folder
-        selectedFiles.forEach(file => {
+        files.forEach(file => {
           // Construct the full path to the file
           const filePath = path.join(folderPath, file);
-      
+          
+          const txData = readJSONFile(filePath);
+          if(txData.vin.length != 1) return;
+          if(txData.vin[0].prevout.scriptpubkey_type != "p2pkh") return
+
+          if(!validate.validate(filePath)) return;
+
+          
           // Read the contents of the file
           if(!transaction.validate(filePath)) return;
           const txid = hashUtils.getTxid(transaction.getTxHash(filePath));

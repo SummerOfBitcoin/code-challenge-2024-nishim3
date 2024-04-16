@@ -202,8 +202,75 @@ function validate(jsonFilePath){
     return check_overspending(txData)
 }
 
+function getMessageLegacy(jsonFilePath){
+    const txData = readJSONFile(jsonFilePath);
+
+if (txData) {
+    let tx='';
+    const leVersion = Buffer.allocUnsafe(4);
+    leVersion.writeUInt32LE(txData.version, 0);
+
+    tx=tx+leVersion.toString('hex');
+    
+
+    const _vinCount = txData.vin.length
+    let vinCount=_vinCount.toString(16);
+    if(_vinCount<16){tx = tx + '0';}
+    if(_vinCount >256){
+         tx= tx+'fd'
+         vinCount=hashUtils.reverseHex(vinCount.padStart(4,'0'))        
+    }
+    tx=tx+vinCount
+    
+
+    for(let i=0;i<_vinCount;i++)
+    {
+        const txid = hashUtils.reverseHex(txData.vin[i].txid)
+        tx= tx+txid;
+        const vout= hashUtils.reverseHex(txData.vin[i].vout.toString(16).padStart(8,'0'));
+        tx= tx+vout;
+        
+        const scriptsigsize = ((txData.vin[i].prevout.scriptpubkey.length)/2).toString(16).padStart(2,'0')
+        tx = tx+scriptsigsize
+
+        tx = tx+ txData.vin[i].prevout.scriptpubkey;
+        const sequence = hashUtils.reverseHex(txData.vin[i].sequence.toString(16).padStart(8,'0'))
+        tx=tx+sequence
+    }
+
+    const _voutCount = txData.vout.length
+    let voutCount=_voutCount.toString(16);
+    if(_voutCount<16){tx = tx + '0';}
+    if(_voutCount >256){
+         tx= tx+'fd'
+         voutCount=hashUtils.reverseHex(voutCount.padStart(4,'0'))        
+    }
+    tx=tx+voutCount
+
+    for(let i=0;i<_voutCount;i++)
+    {
+        const amount = hashUtils.reverseHex(txData.vout[i].value.toString(16).padStart(16,'0'));
+        tx = tx+amount
+
+        const scriptpubkeysize = ((txData.vout[i].scriptpubkey.length)/2).toString(16).padStart(2,'0')
+        tx = tx+scriptpubkeysize
+
+        tx = tx+ txData.vout[i].scriptpubkey
+    }
+
+    const locktime = hashUtils.reverseHex(txData.locktime.toString(16).padStart(8,'0'));
+    tx = tx+locktime
+    tx= tx+'01000000' //sigHash
+   return tx;
+
+} else {
+    console.log("Failed to read JSON file or file is empty.");
+}
+}
+
 module.exports={
     getTxHash,
     getwtxHash,
-    validate
+    validate,
+    getMessageLegacy
 }

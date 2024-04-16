@@ -38,8 +38,8 @@ function run(){
           const filePath = path.join(folderPath, file);
           
           const txData = readJSONFile(filePath);
-          if(txData.vin.length != 1) return;
-          if(txData.vin[0].prevout.scriptpubkey_type != "p2pkh") return
+          for(let i=0;i<txData.vin.length;i++) 
+          if(txData.vin[i].prevout.scriptpubkey_type != "p2pkh") return
 
           if(!validate.validate(filePath)) return;
 

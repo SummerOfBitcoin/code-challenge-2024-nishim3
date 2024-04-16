@@ -2,18 +2,14 @@ const crypto = require('crypto');
 const { createHash } = require('crypto');
 
 function reverseHex(hexString) {
-    // Check if the input is a valid hexadecimal string
     if (!/^[0-9A-Fa-f]+$/g.test(hexString)) {
         return "Invalid hexadecimal string";
     }
 
-    // Split the hexadecimal string into pairs of characters
     const pairs = hexString.match(/.{1,2}/g);
 
-    // Reverse the order of the pairs
     const reversedPairs = pairs.reverse();
 
-    // Join the reversed pairs back together
     const reversedHexString = reversedPairs.join('');
 
     return reversedHexString;
@@ -44,37 +40,25 @@ function SHA256(input) {
 }
 
 
-function getMerkleRoot(txids){
+function merkleRoot(txids){
     if (!txids.length) return null
-
-    let level = txids.map((txid) => Buffer.from(txid, 'hex').reverse().toString('hex'))
-  
-    while (level.length > 1) {
-      const nextLevel = []
-  
-      for (let i = 0; i < level.length; i += 2) {
-        let pairHash
-        if (i + 1 === level.length) {
-          pairHash = hash256(level[i] + level[i])
-        } else {
-          pairHash = hash256(level[i] + level[i + 1])
-        }
-        nextLevel.push(pairHash)
-      }
-  
-      level = nextLevel
-    }
-  
-    return level[0]
+    let current = txids.map((txid) =>reverseHex(txid))
+    while (current.length > 1) {
+      let next = []
+      for (let i = 0; i < current.length; i += 2) {
+        let twoHash
+        if (i + 1 === current.length) twoHash = hash256(current[i] + current[i])
+         else twoHash = hash256(current[i] + current[i + 1])
+         next.push(twoHash)}
+      current = next }
+    return current[0]
 }
 
-
-// Export the functions to make them accessible from other files
 module.exports = {
     reverseHex,
     doubleSHA256,
     getTxid,
     getFilename,
     SHA256,
-    getMerkleRoot
+    merkleRoot
 };

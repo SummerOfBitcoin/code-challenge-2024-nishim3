@@ -7,7 +7,7 @@ const transaction = require('./transaction')
     function getCoinbase(wtxid){
         wtxid[0]='0000000000000000000000000000000000000000000000000000000000000000'
 
-        let mr = hashUtils.getMerkleRoot(wtxid) + '0000000000000000000000000000000000000000000000000000000000000000';
+        let mr = hashUtils.merkleRoot(wtxid) + '0000000000000000000000000000000000000000000000000000000000000000';
         const commitment= hashUtils.doubleSHA256(mr)
          
         return coinbase+commitment+end

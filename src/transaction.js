@@ -1,6 +1,5 @@
-const fs = require('fs'); // Import the Node.js file system module
+const fs = require('fs'); 
 const hashUtils = require('./hashUtils.js')
-// Function to read a JSON file
 function readJSONFile(filePath) {
     try {
         const data = fs.readFileSync(filePath, 'utf8');
@@ -15,7 +14,6 @@ function getTxHash(jsonFilePath){
 const txData = readJSONFile(jsonFilePath);
 
 if (txData) {
-    // Access all properties of the JSON object
     let tx='';
     const leVersion = Buffer.allocUnsafe(4);
     leVersion.writeUInt32LE(txData.version, 0);
@@ -181,7 +179,31 @@ for(let i=0;i<_vinCount;i++)
     }
 }
 
+function check_overspending(txData){
+    const vinCount = txData.vin.length
+    let input=0
+    let output = 0
+    for(let i=0;i<vinCount;i++)
+    {
+        input = input + txData.vin[i].prevout.value
+    }
+
+    const voutCount = txData.vout.length
+    for(let i=0;i<voutCount;i++)
+    {
+        output=output+txData.vout[i].value
+    }
+
+    return input>=output
+}
+
+function validate(jsonFilePath){
+    const txData = readJSONFile(jsonFilePath);
+    return check_overspending(txData)
+}
+
 module.exports={
     getTxHash,
-    getwtxHash
+    getwtxHash,
+    validate
 }

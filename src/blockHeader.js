@@ -8,7 +8,7 @@ const difficulty = Buffer.from('0000ffff0000000000000000000000000000000000000000
 
 function createHeader(txids){
     let header='011000000000000000000000000000000000000000000000000000000000000000000000';//hash appended with version and prevblock
-    header=header+(hashUtils.getMerkleRoot(txids));
+    header=header+(hashUtils.merkleRoot(txids));
     const _time = Math.floor(Date.now() / 1000); // Current time in UNIX timestamp format
 
 // Convert time to little-endian byte order

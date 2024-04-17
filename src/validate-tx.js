@@ -23,11 +23,10 @@ var ec = new EC('secp256k1');
 
 function validate(path){
 const txData=readJSONFile(path)
-let result = true
 var msgHash = hashUtils.doubleSHA256(transaction.getMessageLegacy(path));
 for(let i=0;i<txData.vin.length;i++)
 {
-    if(txData.vin[i].scriptsig_asm.length == 0) return false
+ var msgHash = hashUtils.doubleSHA256(transaction.getMessageLegacy(path)[i]);
 const scriptsig = txData.vin[i].scriptsig_asm.split(' ')
 
 var pub = scriptsig[3]
@@ -38,8 +37,8 @@ var signature = scriptsig[1].slice(0,-2)
 if(!key.verify(msgHash, signature)) return false
 }
 return true
-}
 
+}
 module.exports={
     validate
 }

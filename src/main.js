@@ -5,7 +5,7 @@ const path = require('path')
 const blockHeader = require('./blockHeader.js')
 const coinBase= require('./coinBase')
 const block = require('./block.js')
-const validate = require('./validate-tx.js')
+const validatetx = require('./validate-tx.js')
 
 function readJSONFile(filePath) {
   try {
@@ -33,6 +33,7 @@ function run(){
         //const selectedFiles = files.slice(0, 2000);
       
         // Loop through each file in the folder
+        let c=0;
         files.forEach(file => {
           // Construct the full path to the file
           const filePath = path.join(folderPath, file);
@@ -41,7 +42,7 @@ function run(){
           for(let i=0;i<txData.vin.length;i++) 
           if(txData.vin[i].prevout.scriptpubkey_type != "p2pkh") return
 
-          if(!validate.validate(filePath)) return;
+          if(!validatetx.validate(filePath)) return;
 
           
           // Read the contents of the file

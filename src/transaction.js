@@ -205,14 +205,13 @@ function validate(jsonFilePath){
 function getMessageLegacy(jsonFilePath){
     const txData = readJSONFile(jsonFilePath);
 
-if (txData) {
+    if (txData) {
     let tx='';
     const leVersion = Buffer.allocUnsafe(4);
     leVersion.writeUInt32LE(txData.version, 0);
 
     tx=tx+leVersion.toString('hex');
     
-
     const _vinCount = txData.vin.length
     let vinCount=_vinCount.toString(16);
     if(_vinCount<16){tx = tx + '0';}
@@ -221,23 +220,33 @@ if (txData) {
          vinCount=hashUtils.reverseHex(vinCount.padStart(4,'0'))        
     }
     tx=tx+vinCount
-    
-
+    const prev = tx;
+    let msghash=[]
     for(let i=0;i<_vinCount;i++)
     {
-        const txid = hashUtils.reverseHex(txData.vin[i].txid)
+        tx=''
+        for(let j=0;j<_vinCount;j++)
+        {
+        const txid = hashUtils.reverseHex(txData.vin[j].txid)
         tx= tx+txid;
-        const vout= hashUtils.reverseHex(txData.vin[i].vout.toString(16).padStart(8,'0'));
+        const vout= hashUtils.reverseHex(txData.vin[j].vout.toString(16).padStart(8,'0'));
         tx= tx+vout;
         
-        const scriptsigsize = ((txData.vin[i].prevout.scriptpubkey.length)/2).toString(16).padStart(2,'0')
+        if(i == j){
+        const scriptsigsize = ((txData.vin[j].prevout.scriptpubkey.length)/2).toString(16).padStart(2,'0')
         tx = tx+scriptsigsize
 
-        tx = tx+ txData.vin[i].prevout.scriptpubkey;
-        const sequence = hashUtils.reverseHex(txData.vin[i].sequence.toString(16).padStart(8,'0'))
+        tx = tx+ txData.vin[j].prevout.scriptpubkey;
+        }
+        else{
+            tx=tx+'00'
+        }
+        const sequence = hashUtils.reverseHex(txData.vin[j].sequence.toString(16).padStart(8,'0'))
         tx=tx+sequence
+        }
+        msghash.push(prev+tx)
     }
-
+    tx = ''
     const _voutCount = txData.vout.length
     let voutCount=_voutCount.toString(16);
     if(_voutCount<16){tx = tx + '0';}
@@ -261,7 +270,9 @@ if (txData) {
     const locktime = hashUtils.reverseHex(txData.locktime.toString(16).padStart(8,'0'));
     tx = tx+locktime
     tx= tx+'01000000' //sigHash
-   return tx;
+    for(let i=0;i<_vinCount;i++)
+    msghash[i]=msghash[i]+tx
+   return msghash;
 
 } else {
     console.log("Failed to read JSON file or file is empty.");

@@ -37,7 +37,6 @@ var signature = scriptsig[1].slice(0,-2)
 if(!key.verify(msgHash, signature)) return false
 }
 return true
-
 }
 module.exports={
     validate

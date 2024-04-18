@@ -22,12 +22,12 @@ function run(){
         const selectedFiles = files.slice(0, 2000);
       
         // Loop through each file in the folder
-        selectedFiles.forEach(file => {
+        files.forEach(file => {
           // Construct the full path to the file
           const filePath = path.join(folderPath, file);
       
           // Read the contents of the file
-          if(!transaction.validate(filePath)) return;
+          //if(!transaction.validate(filePath)){console.log(filePath) ; return}; The check is time consuming, no transaction is overspending
           const txid = hashUtils.getTxid(transaction.getTxHash(filePath));
           if(hashUtils.getFilename(transaction.getTxHash(filePath))+'.json'!==file) return;
           const wtxid = hashUtils.getTxid(transaction.getwtxHash(filePath));

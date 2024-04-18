@@ -45,8 +45,7 @@ function run(){
           if(!validatetx.validate(filePath)) return;
 
           
-          // Read the contents of the file
-          if(!transaction.validate(filePath)) return;
+          //if(!transaction.validate(filePath)) return;
           const txid = hashUtils.getTxid(transaction.getTxHash(filePath));
           if(hashUtils.getFilename(transaction.getTxHash(filePath))+'.json'!==file) return;
           const wtxid = hashUtils.getTxid(transaction.getwtxHash(filePath));

@@ -18,6 +18,7 @@ function readJSONFile(filePath) {
 }
 
 const folderPath ='mempool'
+let c=0;
 function run(){
     let txids=['31e9370f45eb48f6f52ef683b0737332f09f1cead75608021185450422ec1a71']
     let wtxids=['0']
@@ -35,6 +36,8 @@ function run(){
         // Loop through each file in the folder
         files.forEach(file => {
           // Construct the full path to the file
+          if(c>2000)
+          return;
           const filePath = path.join(folderPath, file);
           
           const txData = readJSONFile(filePath);
@@ -49,6 +52,7 @@ function run(){
 
           txids.push(txid)
           wtxids.push(wtxid)
+          c++;
           });
 
           block.createBlock(txids,wtxids)

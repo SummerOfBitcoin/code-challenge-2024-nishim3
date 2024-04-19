@@ -6,7 +6,7 @@ const blockHeader = require('./blockHeader.js')
 const coinBase= require('./coinBase')
 const block = require('./block.js')
 const validatetx = require('./validate-tx.js')
-
+const fees = require('./fees.js')
 function readJSONFile(filePath) {
   try {
       const data = fs.readFileSync(filePath, 'utf8');
@@ -17,46 +17,57 @@ function readJSONFile(filePath) {
   }
 }
 
-const folderPath ='mempool'
-let c=0;
-function run(){
+function getTransactionType(file){
+    const txData= readJSONFile(file)
+    let txtype = 0
+      let flag = true;
+      for(let i=0;i<txData.vin.length;i++) 
+          if(txData.vin[i].prevout.scriptpubkey_type != "v0_p2wpkh") {
+            flag = false;
+            break;
+          }
+      if(flag) return 1
+       flag = true;
+      for(let i=0;i<txData.vin.length;i++) 
+          if(txData.vin[i].prevout.scriptpubkey_type != "p2pkh") {
+            flag = false;
+            break;
+          }
+      if(flag) return 2
+      return 0
+}
+
+async function run(){
+    await fees.sortTransactionsbyFee('mempool')
     let txids=['31e9370f45eb48f6f52ef683b0737332f09f1cead75608021185450422ec1a71']
     let wtxids=['0']
-    fs.readdir(folderPath, (err, files) => {
-        if (err) {
-          console.error('Error reading folder:', err);
-          return;
-        }
-
-        files.sort()
-      
-        // Take only the first 10 files
-        //const selectedFiles = files.slice(0, 2000);
-      
-        // Loop through each file in the folder
-        files.forEach(file => {
-          // Construct the full path to the file
-          if(c>2770)
-          return;
-          const filePath = path.join(folderPath, file);
-          
-          const txData = readJSONFile(filePath);
-          for(let i=0;i<txData.vin.length;i++) 
-          if(txData.vin[i].prevout.scriptpubkey_type != "v0_p2wpkh") return
-
-          if(!validatetx.validateWitness(filePath)) return;
-          
-          const txid = hashUtils.getTxid(transaction.getTxHash(filePath));
-          if(hashUtils.getFilename(transaction.getTxHash(filePath))+'.json'!==file) return;
-          const wtxid = hashUtils.getTxid(transaction.getwtxHash(filePath));
+    const data = fs.readFileSync('sorted_transactions.txt', 'utf8').trim().split('\n')
+    let weight = 0 
+    for(let i=0;i<data.length;i++){
+      if(weight > 4000000) break;
+      const file = data[i]
+      const txData = readJSONFile(file);
+      let txtype = getTransactionType(file)
+      //console.log(txtype)
+      if(txtype==1){
+        if(!validatetx.validateWitness(file)) continue;
+      }
+      else if(txtype==2){
+        if(!validatetx.validateLegacy(file)) continue;
+      }
+      else if(txtype==0){
+        continue
+      }
+      const txid = hashUtils.getTxid(transaction.getTxHash(file));
+          if('mempool/'+hashUtils.getFilename(transaction.getTxHash(file))+'.json'!==file) continue;
+          const wtxid = hashUtils.getTxid(transaction.getwtxHash(file));
+          //console.log("valid")
 
           txids.push(txid)
           wtxids.push(wtxid)
-          c++;
-          });
-
-          block.createBlock(txids,wtxids)
-        });
+          weight = weight + transaction.calculate_weight(file)
+    }
+    block.createBlock(txids,wtxids)
 }
 
 run()

@@ -179,7 +179,7 @@ for(let i=0;i<_vinCount;i++)
     }
 }
 
-function check_overspending(txData){
+function calculate_fees(txData){
     const vinCount = txData.vin.length
     let input=0
     let output = 0
@@ -194,14 +194,15 @@ function check_overspending(txData){
         output=output+txData.vout[i].value
     }
 
-    return input>=output
+    return (input-output)
 }
 
-function validate(jsonFilePath){
-    const txData = readJSONFile(jsonFilePath);
-    return check_overspending(txData)
-}
+function calculate_weight(filePath){
+    const tx_raw = getTxHash(filePath).length
+    const wtx_raw = getwtxHash(filePath).length
 
+    return (tx_raw*4 + wtx_raw)/2
+}
 function getMessageLegacy(jsonFilePath){
     const txData = readJSONFile(jsonFilePath);
 
@@ -328,7 +329,8 @@ function getMessageWitness(jsonFilePath){
 module.exports={
     getTxHash,
     getwtxHash,
-    validate,
     getMessageLegacy,
-    getMessageWitness
+    getMessageWitness,
+    calculate_fees,
+    calculate_weight
 }

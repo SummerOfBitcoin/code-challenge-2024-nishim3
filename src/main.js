@@ -36,7 +36,7 @@ function run(){
         // Loop through each file in the folder
         files.forEach(file => {
           // Construct the full path to the file
-          if(c>2700)
+          if(c>2800)
           return;
           const filePath = path.join(folderPath, file);
           

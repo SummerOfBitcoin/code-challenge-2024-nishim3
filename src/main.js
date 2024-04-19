@@ -61,13 +61,15 @@ async function run(){
       const txid = hashUtils.getTxid(transaction.getTxHash(file));
           if('mempool/'+hashUtils.getFilename(transaction.getTxHash(file))+'.json'!==file) continue;
           const wtxid = hashUtils.getTxid(transaction.getwtxHash(file));
-          //console.log("valid")
-
+        if(weight + transaction.calculate_weight(file) > 4000000){
+          continue
+        }
+        weight = weight + transaction.calculate_weight(file)
           txids.push(txid)
           wtxids.push(wtxid)
-          weight = weight + transaction.calculate_weight(file)
     }
     block.createBlock(txids,wtxids)
+    console.log(weight)
 }
 
 run()

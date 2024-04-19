@@ -44,11 +44,14 @@ async function run(){
     const data = fs.readFileSync('sorted_transactions.txt', 'utf8').trim().split('\n')
     let weight = 0 
     for(let i=0;i<data.length;i++){
-      if(weight > 4000000) break;
+      //if(weight > 4000000) break;
       const file = data[i]
       const txData = readJSONFile(file);
       let txtype = getTransactionType(file)
       //console.log(txtype)
+      if(weight + transaction.calculate_weight(file) > 4000000){
+        continue
+      }
       if(txtype==1){
         if(!validatetx.validateWitness(file)) continue;
       }
@@ -61,9 +64,6 @@ async function run(){
       const txid = hashUtils.getTxid(transaction.getTxHash(file));
           if('mempool/'+hashUtils.getFilename(transaction.getTxHash(file))+'.json'!==file) continue;
           const wtxid = hashUtils.getTxid(transaction.getwtxHash(file));
-        if(weight + transaction.calculate_weight(file) > 4000000){
-          continue
-        }
         weight = weight + transaction.calculate_weight(file)
           txids.push(txid)
           wtxids.push(wtxid)

@@ -21,12 +21,12 @@ var ec = new EC('secp256k1');
 // Sign the message's hash (input must be an array, or a hex-string)
 //const path='mempool/0117e65a381acc3a3472e37f370d8f44dfab56422110ec78a774c59ccbd44a4d.json'
 
-function validate(path){
+function validateLegacy(path){
 const txData=readJSONFile(path)
-var msgHash = hashUtils.doubleSHA256(transaction.getMessageLegacy(path));
+let msg= transaction.getMessageLegacy(path)
 for(let i=0;i<txData.vin.length;i++)
 {
- var msgHash = hashUtils.doubleSHA256(transaction.getMessageLegacy(path)[i]);
+ var msgHash = hashUtils.doubleSHA256(msg[i]);
 const scriptsig = txData.vin[i].scriptsig_asm.split(' ')
 
 var pub = scriptsig[3]
@@ -37,8 +37,24 @@ var signature = scriptsig[1].slice(0,-2)
 if(!key.verify(msgHash, signature)) return false
 }
 return true
+}
 
+function validateWitness(path){
+    const txData=readJSONFile(path)
+    let msg= transaction.getMessageWitness(path)
+    //console.log(msg)
+    for(let i= 0; i<txData.vin.length;i++)
+    {
+        var msgHash = hashUtils.doubleSHA256(msg[i]);
+        const signature= txData.vin[i].witness[0].slice(0,-2)
+        //console.log(signature)
+        var pub = txData.vin[i].witness[1]
+        var key = ec.keyFromPublic(pub, 'hex');
+        if(!key.verify(msgHash, signature)) return false
+    }
+    return true
 }
 module.exports={
-    validate
+    validateLegacy,
+    validateWitness
 }

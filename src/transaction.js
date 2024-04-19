@@ -279,9 +279,56 @@ function getMessageLegacy(jsonFilePath){
 }
 }
 
+function getMessageWitness(jsonFilePath){
+    const txData = readJSONFile(jsonFilePath);
+
+    if (txData) {
+    let tx='';
+    const leVersion = Buffer.allocUnsafe(4);
+    leVersion.writeUInt32LE(txData.version, 0);
+
+    tx=tx+leVersion.toString('hex');
+    
+    let tx_vout=''
+    for(let i = 0; i< txData.vin.length;i++)
+    {
+        tx_vout += hashUtils.reverseHex(txData.vin[i].txid)
+        tx_vout += hashUtils.reverseHex(txData.vin[i].vout.toString(16).padStart(8,'0'))
+    }
+    tx_vout = hashUtils.doubleSHA256(tx_vout)
+    tx=tx+tx_vout
+    let sequence=''
+    for(let i = 0; i< txData.vin.length;i++)
+    {
+        sequence+=hashUtils.reverseHex(txData.vin[i].sequence.toString(16).padStart(8,'0'))
+    }
+    tx=tx+hashUtils.doubleSHA256(sequence)
+    let vout = ''
+    for(let i=0;i<txData.vout.length;i++)
+    {
+        vout=vout+hashUtils.reverseHex(txData.vout[i].value.toString(16).padStart(16,'0'))+((txData.vout[i].scriptpubkey.length)/2).toString(16).padStart(2,'0')
+             +txData.vout[i].scriptpubkey;
+    }
+    vout = hashUtils.doubleSHA256(vout)
+    let msgHash=[]
+
+    for(let i = 0; i< txData.vin.length;i++){
+        msgHash.push(tx+(hashUtils.reverseHex(txData.vin[i].txid)+hashUtils.reverseHex(txData.vin[i].vout.toString(16).padStart(8,'0'))))
+        msgHash[i] += '1976a914' + txData.vin[i].prevout.scriptpubkey_asm.split(' ')[2] + '88ac'
+        msgHash[i]+=hashUtils.reverseHex(txData.vin[i].prevout.value.toString(16).padStart(16,'0'))
+        msgHash[i]+=hashUtils.reverseHex(txData.vin[i].sequence.toString(16).padStart(8,'0'))
+        msgHash[i]+=vout+hashUtils.reverseHex(txData.locktime.toString(16).padStart(8,'0'))+'01000000'
+    }
+    return msgHash
+}else {
+    console.log("Failed to read JSON file or file is empty.");
+}
+}
+
 module.exports={
     getTxHash,
     getwtxHash,
     validate,
-    getMessageLegacy
+    getMessageLegacy,
+    getMessageWitness
 }

@@ -33,19 +33,16 @@ function run(){
         //const selectedFiles = files.slice(0, 2000);
       
         // Loop through each file in the folder
-        let c=0;
         files.forEach(file => {
           // Construct the full path to the file
           const filePath = path.join(folderPath, file);
           
           const txData = readJSONFile(filePath);
           for(let i=0;i<txData.vin.length;i++) 
-          if(txData.vin[i].prevout.scriptpubkey_type != "p2pkh") return
+          if(txData.vin[i].prevout.scriptpubkey_type != "v0_p2wpkh") return
 
-          if(!validatetx.validate(filePath)) return;
-
+          if(!validatetx.validateWitness(filePath)) return;
           
-          //if(!transaction.validate(filePath)) return;
           const txid = hashUtils.getTxid(transaction.getTxHash(filePath));
           if(hashUtils.getFilename(transaction.getTxHash(filePath))+'.json'!==file) return;
           const wtxid = hashUtils.getTxid(transaction.getwtxHash(filePath));

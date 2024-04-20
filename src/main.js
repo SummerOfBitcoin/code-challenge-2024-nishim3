@@ -41,7 +41,7 @@ async function run(){
     await fees.sortTransactionsbyFee('mempool')
     let txids=['31e9370f45eb48f6f52ef683b0737332f09f1cead75608021185450422ec1a71']
     let wtxids=['0']
-    const data = fs.readFileSync('sorted_transactions.txt', 'utf8').trim().split('\n').reverse()
+    const data = fs.readFileSync('sorted_transactions.txt', 'utf8').trim().split('\n')
     let weight = 0 
     for(let i=0;i<data.length;i++){
       //if(weight > 4000000) break;

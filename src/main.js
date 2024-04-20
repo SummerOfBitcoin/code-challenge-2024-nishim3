@@ -48,7 +48,7 @@ async function run(){
       const file = data[i]
       const txData = readJSONFile(file);
       let txtype = getTransactionType(file)
-      if(weight + transaction.calculate_weight(file) > 3950000){
+      if(weight + transaction.calculate_weight(file) > 3990000){
         continue
       }
       if(txtype==1){

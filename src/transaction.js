@@ -199,7 +199,7 @@ function calculate_fees(txData){
 
 function calculate_weight(filePath){
     const tx_raw = getTxHash(filePath).length
-    const wtx_raw = getwtxHash(filePath).length
+    const wtx_raw = getwtxHash(filePath).length - tx_raw
 
     return (tx_raw*4 + wtx_raw)/2
 }

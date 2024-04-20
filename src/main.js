@@ -48,6 +48,7 @@ async function run(){
       const file = data[i]
       const txData = readJSONFile(file);
       let txtype = getTransactionType(file)
+      if('mempool/'+hashUtils.getFilename(transaction.getTxHash(file))+'.json'!==file) continue;
       if(weight + transaction.calculate_weight(file) > 3999500){
         continue
       }
@@ -61,7 +62,7 @@ async function run(){
         continue
       }
       const txid = hashUtils.getTxid(transaction.getTxHash(file));
-          if('mempool/'+hashUtils.getFilename(transaction.getTxHash(file))+'.json'!==file) continue;
+      
           const wtxid = hashUtils.getTxid(transaction.getwtxHash(file));
         weight = weight + transaction.calculate_weight(file)
           txids.push(txid)

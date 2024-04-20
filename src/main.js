@@ -43,7 +43,7 @@ async function run(){
     let wtxids=['0']
     const data = fs.readFileSync('sorted_transactions.txt', 'utf8').trim().split('\n')
     let weight = 0 
-    for(let i=0;i<data.length;i++){
+    for(let i=data.length-1;i>=0;i--){
       //if(weight > 4000000) break;
       const file = data[i]
       const txData = readJSONFile(file);

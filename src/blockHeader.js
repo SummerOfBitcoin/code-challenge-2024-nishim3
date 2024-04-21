@@ -39,13 +39,9 @@ header += littleEndianTime.toString('hex');
 
   // Append little-endian nonce to the header
   header += littleEndianNonce.toString('hex');
-  const headerBuffer = Buffer.from(header, 'hex')
 
-  if (headerBuffer.length !== 80) console.log('Invalid header length')
-
-    const h1 = createHash('sha256').update(headerBuffer).digest()
-  const h2 = createHash('sha256').update(h1).digest()
-  const hash = h2.reverse()
+  let hash = hashUtils.doubleSHA256(header)
+  hash=Buffer.from(hashUtils.reverseHex(hash),'hex')
   if(difficulty.compare(hash) > 0)break
     }
 

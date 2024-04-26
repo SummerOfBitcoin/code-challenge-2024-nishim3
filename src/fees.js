@@ -31,9 +31,12 @@ async function sortTransactionsbyFee(folderPath) {
                 }
             });
 
-            const sortedTx = [...mapping.keys()].sort();
+            // Convert the Map to an array of entries, then sort by value (transaction fee) in descending order
+            const sortedEntries = [...mapping.entries()].sort(([, feeA], [, feeB]) => feeB - feeA);
+
             const outputFilePath = 'sorted_transactions.txt';
-            fs.writeFileSync(outputFilePath, sortedTx.join('\n'), 'utf8');
+            // Write sorted entries to the file
+            fs.writeFileSync(outputFilePath, sortedEntries.map(([key, value]) => `${key}`).join('\n'), 'utf8');
             console.log('Sorted transactions have been written to sorted_transactions.txt');
             resolve(); // Resolve the Promise after completing all operations
         });

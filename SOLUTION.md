@@ -28,7 +28,7 @@ Things I think I could have done better:
 * Validated all the different type of transactions
 * Implemented the ECDSA signature myself
 
-##Acknowledgements
+## Acknowledgements
 I received inaluable help from the learnmeabitcoin website and the discord channel. I made sure to give back by helping out my peers when they reached out to me for help.
 
 
